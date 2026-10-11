@@ -1,7 +1,7 @@
 
-%option noyywrap
-
+%option noyywrap stack
 %x OUTSIDE PICTURE CLASS_NAME ATTRIBUTES METHODS COMMENT
+%x VERBATIM VERB_BAR VERB_PLUS VERB_BANG
 
 %{
 #include <stdio.h>
@@ -58,6 +58,41 @@ void terminar_miembro(int es_atributo)
 %}
 
 %%
+/* Ignorar el entorno verbatim y volver al estado anterior al terminarlo. */
+<OUTSIDE,PICTURE,CLASS_NAME,ATTRIBUTES,METHODS>^[ \t]*\\begin\{verbatim\}[^\n]* {
+    yy_push_state(VERBATIM);
+}
+
+<VERBATIM>\\end\{verbatim\} {
+    yy_pop_state();
+}
+
+<VERBATIM>(.|\n) ;
+
+/* Ignorar contenido de \verb y \verb* delimitado por |, + o !. */
+<OUTSIDE,PICTURE,CLASS_NAME,ATTRIBUTES,METHODS>\\verb\*?\| {
+    yy_push_state(VERB_BAR);
+}
+
+<OUTSIDE,PICTURE,CLASS_NAME,ATTRIBUTES,METHODS>\\verb\*?\+ {
+    yy_push_state(VERB_PLUS);
+}
+
+<OUTSIDE,PICTURE,CLASS_NAME,ATTRIBUTES,METHODS>\\verb\*?! {
+    yy_push_state(VERB_BANG);
+}
+
+<VERB_BAR>[^|]*\| {
+    yy_pop_state();
+}
+
+<VERB_PLUS>[^+]*\+ {
+    yy_pop_state();
+}
+
+<VERB_BANG>[^!]*! {
+    yy_pop_state();
+}
 <ATTRIBUTES>\r?\n {
     terminar_miembro(1);
     miembro[0] = '\0';
@@ -175,7 +210,41 @@ i++;
         int i = 0;
         while (nombre_clase_actual[i] != '\0' && i < 255) {
             nombre_clase_maxima[i] = nombre_clase_actual[i];
-            i++;
+int main(int argc, char **argv)
+{
+    if (argc > 2) {
+        fprintf(stderr, "Uso: %s [archivo.tex]\n", argv[0]);
+        return 1;
+    }
+
+    if (argc == 2) {
+        yyin = fopen(argv[1], "r");
+        if (yyin == NULL) {
+            perror(argv[1]);
+            return 1;
+        }
+    }
+
+    BEGIN(OUTSIDE);
+    yylex();
+
+    if (argc == 2)
+        fclose(yyin);
+
+    printf("Paquetes: %d (anidamiento máximo: %d)\n",
+           paquetes, profundidad_maxima);
+
+    printf("Miembros por visibilidad: públicos %d, privados %d, protegidos %d\n",
+           publicos, privados, protegidos);
+
+    printf("Clase con más atributos: %s (%d)\n",
+           nombre_clase_maxima, atributos_clase_maximos);
+
+    printf("Nombre de paquete más largo: %s\n",
+           nombre_paquete_mas_largo);
+
+    return 0;
+}            i++;
         }
         nombre_clase_maxima[i] = '\0';
     }
@@ -216,19 +285,36 @@ i++;
 
 int main(int argc, char **argv)
 {
-    /* Inicializar entrada y ejecutar el analizador */
+    if (argc > 2) {
+        fprintf(stderr, "Uso: %s [archivo.tex]\n", argv[0]);
+        return 1;
+    }
+
+    if (argc == 2) {
+        yyin = fopen(argv[1], "r");
+        if (yyin == NULL) {
+            perror(argv[1]);
+            return 1;
+        }
+    }
+
     BEGIN(OUTSIDE);
     yylex();
 
-    /* Imprimir las estadísticas finales */
+    if (argc == 2)
+        fclose(yyin);
+
     printf("Paquetes: %d (anidamiento máximo: %d)\n",
            paquetes, profundidad_maxima);
 
     printf("Miembros por visibilidad: públicos %d, privados %d, protegidos %d\n",
            publicos, privados, protegidos);
-printf("Clase con más atributos: %s (%d)\n",
-       nombre_clase_maxima, atributos_clase_maximos);
-printf("Nombre de paquete más largo: %s\n",
-       nombre_paquete_mas_largo);
+
+    printf("Clase con más atributos: %s (%d)\n",
+           nombre_clase_maxima, atributos_clase_maximos);
+
+    printf("Nombre de paquete más largo: %s\n",
+           nombre_paquete_mas_largo);
+
     return 0;
 }
