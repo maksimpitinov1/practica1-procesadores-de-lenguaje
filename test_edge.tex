@@ -1,0 +1,22 @@
+\documentclass{article}
+% \begin{tikzpicture}
+\begin{tikzpicture}
+  % \begin{umlpackage}{Falso}
+  \begin{umlpackage}[name={Prueba}]{Paquete}
+    \umlclass[template={T, U}]{Persona}{
+      +nombre: String\\
+      -edad: int\\
+      #datos: {clave, valor}\\
+      +porcentaje: \%
+    }{
+      +saludar()\\
+      -calcular()
+    }
+    \begin{verbatim}
+      \begin{umlpackage}{Falso}
+      \umlclass{Falsa}{+atributo}{} 
+      % Esto no es un comentario para el analizador
+    \end{verbatim}
+  \end{umlpackage}
+\end{tikzpicture}
+\end{document}
