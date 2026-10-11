@@ -1,0 +1,17 @@
+
+\documentclass{article}
+\begin{document}
+
+\begin{tikzpicture}
+  \begin{umlpackage}{Demo}
+    \umlclass{Persona}{
+      +nombre: String\\
+      -edad: int
+    }{
+      +saludar()\\
+      #calcularEdad()
+    }
+  \end{umlpackage}
+\end{tikzpicture}
+
+\end{document}

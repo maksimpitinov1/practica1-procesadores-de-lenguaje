@@ -1,0 +1,22 @@
+\documentclass{article}
+\begin{document}
+\begin{tikzpicture}
+  \begin{umlpackage}{A}
+    \umlclass{Alpha}{
+      +id: int
+      -name: String
+    }{
+      +getId()
+    }
+    \begin{umlpackage}{LongPackage}
+      \umlclass{Beta}{
+        #value: double
+        +active: boolean
+      }{
+        -reset()
+      }
+    \end{umlpackage}
+  \end{umlpackage}
+\end{tikzpicture}
+\end{document}
+

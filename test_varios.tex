@@ -1,0 +1,21 @@
+\documentclass{article}
+\begin{document}
+\begin{tikzpicture}
+  % \begin{umlpackage}{ComentarioFalso}
+  \begin{umlpackage}{Corto}
+    \umlclass{Persona}{
+      +nombre: String
+      -edad: int
+    }{
+      +saludar()
+    }
+    \umlclass{Vehiculo}{
+      #matricula: String
+      +marca: String
+      -velocidad: int
+    }{
+      +arrancar()
+    }
+  \end{umlpackage}
+\end{tikzpicture}
+\end{document}
